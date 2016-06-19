@@ -14,6 +14,9 @@
         
             svg.setRootElement( $element );
             svg.create( 400, 400 );
+            svg.addImage( 'images/sf1.png' );
+            svg.addImage( 'images/sf2.png' );
+            svg.populate( 10 );
             this.testAlert = function() {
                 alert( "Test alert from directive " + 
                       "controller, defined elsewhere" );
@@ -22,7 +25,7 @@
         this.ctrlVar = "Neat Controller Variable in the Button";
     }];
     
-    var particleDir = function() {
+    var particleDirective = function() {
         return {
             restrict: 'E',
             templateUrl: 'templates/pstemplate.html',
@@ -36,6 +39,8 @@
         
         var _rootElement;
         var _svg;
+        var _images = [];
+        var _imageElements = [];
         
         var _setRootElement = function( re ) {
             _rootElement = re[0].firstChild;
@@ -43,16 +48,45 @@
         
         var _createSvg = function( width, height ) {
             if ( _rootElement ) {
-                _svg = d3Lib.select( _rootElement ).append( 'svg' );
+                _svg = d3Lib.select( _rootElement ).append( 'svg' )[0][0];
+                d3Lib.select( _svg )
+                    .attr( 'style', "background-color: #F1FFFF")
+                    .attr( 'width', width )
+                    .attr( 'height', height );
+                console.log( "TEST" );
             } else {
                 throw Error( "Root element not set. " +
                             "SvgService needs an element to work with." )
             }
         }
         
+        var _addImage = function( imagePath ) {
+            _images.push( imagePath );
+        }
+        
+        var _populate = function( numImages ) {
+            var mult = 1;
+            _images.forEach( function( _img ) {
+                _imageElements.push( d3Lib.select( _svg )
+                    .append( 'image' )
+                    .attr( 'xlink:href', _img )
+                    .attr( 'width', 30 )
+                    .attr( 'x', 10 * mult )
+                    .attr( 'y', 10 * mult )
+                    .attr( 'height', 30 ) );
+                mult += 2;
+            });
+        }
+        
+        var _animate = function() {
+            
+        }
+        
         return {
             setRootElement: _setRootElement,
-            create: _createSvg
+            create: _createSvg,
+            addImage: _addImage,
+            populate: _populate
         }
     };
     
@@ -69,7 +103,7 @@
     module.factory( 'SvgService', svgSvc );
     module.controller( 'MainController', mainController );
     module.controller( 'ParticleController', particleController );
-    module.directive( 'particleSystem', particleDir );
+    module.directive( 'particleSystem', particleDirective );
     
 })();
 
